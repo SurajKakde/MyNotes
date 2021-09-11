@@ -1,0 +1,2 @@
+# MyNotes
+Code snippets
