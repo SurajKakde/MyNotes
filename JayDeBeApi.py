@@ -1,4 +1,6 @@
 #reference : https://pypi.org/project/JayDeBeApi/
+#Goal : To import data from jdbc connection into csv file using python
+#Author : Suraj
 #import JayDeBeApi module
 import jaydebeapi
 import pandas as pd
@@ -16,7 +18,7 @@ Filter = 'Where true'
 selectQuery = 'select {} from {} {}'.format(columns, SrcTable, Filter)
 
 tgtDir = 'C:/'
-tgtFiel = 'test1.csv'
+tgtFile = 'test1.csv'
 NoRows = 20000
 
 #Check if directory exists
@@ -28,21 +30,25 @@ if os.path.isfile(tgtDir+tgtFile):
   os.remove(tgtDir+tgtFile)
   Print('Deleted file : {}'.format(tgtFile))
 
- 
-with jaydebeapi.connect(ClassName, jdbcUrl,
-                       {'user': UsrID, 'passowrd' : Pwd}, DriverPath) as Con:
-   with Con.cusror() as cur:
-      cur.execute(selectQuery)
-      colNames = [i[0] for i in curs.description]
-      b1 = pd.DataFrame(columns = colNames)
-      b1.to_csv(tgtDir+tgtFile , mode='a', index=False)
-      while True:
-        try:
-          b2 = pd.DataFrame(cur.fetchmany(size=NoRows))
-          b2.to_csv(tgtDir+tgtFile, mode='a', index=False, header=False)
-          if b2.empty:
-            break
-        except Exception as e:
-          raise Exception('Failed to extract data to file {}'.format(str(e))
+try:
+  with jaydebeapi.connect(ClassName, jdbcUrl,
+                         {'user': UsrID, 'passowrd' : Pwd}, DriverPath) as Con:
+     with Con.cusror() as cur:
+        cur.execute(selectQuery)
+        colNames = [i[0] for i in cur.description]
+        b1 = pd.DataFrame(columns = colNames)
+        b1.to_csv(tgtDir+tgtFile , mode='a', index=False)
+        while True:
+          try:
+            # fetch all will fetch all records but fetch many will fetch record in batches
+            b2 = pd.DataFrame(cur.fetchmany(size=NoRows))
+            b2.to_csv(tgtDir+tgtFile, mode='a', index=False, header=False)
+            if b2.empty:
+              break
+          except Exception as e:
+            raise Exception('Failed to extract data to file {}'.format(str(e))
+except Exception as e:
+  raise Exception('Error : {}'.format(str(e))            
 
-            
+print('Script compeleted, EOF')
+
