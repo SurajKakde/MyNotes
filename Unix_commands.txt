@@ -1,0 +1,30 @@
+########################################################
+$? -- return code
+script_name = $(basename $0)
+
+########################################################
+datetime = `date=%Y-%m-%d%H%M%S`
+
+########################################################
+$logname = '/loc/filename.log'
+log_fn()
+{
+  echo `$datetime` "* * *" $1 >> $logname
+}
+
+########################################################
+find command:
+find $scrpath -type f -mtime -180 -exec cp -rp{} $archive_path \;
+
+########################################################
+file_count = `find $srcpath -type f -mtime -180 | wc -l` 
+
+########################################################
+#command to rum informatica wf
+
+pmcmd startworkflow -sv <integration service> -d <domain> -u <username> -p <password> -f <folder> -w <workflow>
+
+#for instance
+pmcmd startworkflow -sv <integration service> -d <domain> -u <username> -p <password> -nowait -rin <instance> -f <folder> -w <workflow>
+
+########################################################
